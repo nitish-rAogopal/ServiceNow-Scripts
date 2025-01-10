@@ -1,0 +1,44 @@
+// Get the sys_id of the 'Service Catalog'
+var serviceCatalogGR = new GlideRecord('sc_catalog');
+serviceCatalogGR.addQuery('title', 'Service Catalog');
+serviceCatalogGR.query();
+
+if (!serviceCatalogGR.next()) {
+	gs.print('Service Catalog not found.');
+	// return;
+} else
+	var serviceCatalogSysId = serviceCatalogGR.sys_id;
+
+// Get the sys_id of the 'Mobile' category
+var categoryGR = new GlideRecord('sc_category');
+categoryGR.addQuery('title', 'Mobile');
+categoryGR.addQuery('sc_catalog', serviceCatalogSysId);
+categoryGR.query();
+
+if (!categoryGR.next()) {
+	gs.print('Mobile category not found.');
+	// return;
+} else
+	var categorySysId = categoryGR.sys_id;
+
+// Function to generate random price
+function getRandomPrice() {
+	return (Math.random() * (1000 - 50) + 50).toFixed(2); // Random price between 50 and 1000
+}
+
+// Create 15 catalog items
+for (var i = 1; i <= 15; i++) {
+	var catalogItemGR = new GlideRecord('sc_cat_item');
+	catalogItemGR.initialize();
+	catalogItemGR.name = 'Test Catalog Item ' + i;
+	catalogItemGR.short_description = 'Short description for Test Catalog Item ' + i;
+	catalogItemGR.description = 'This is a detailed description for Test Catalog Item ' + i + '. It is used for testing purposes.';
+	catalogItemGR.price = getRandomPrice();
+	catalogItemGR.sc_catalogs = serviceCatalogSysId;
+	catalogItemGR.category = categorySysId;
+	catalogItemGR.active = true;
+	catalogItemGR.insert();
+	gs.print('Test Catalog Item ' + i + ' created successfully.');
+}
+
+gs.print('15 Test Catalog Items created under Service Catalog and Mobile category.');
